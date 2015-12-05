@@ -144,7 +144,9 @@ function initScene() {
 
     for(var i = 0; i < 30; i++)
     {
-        var sphere = createSphere(i % 10, i % 10, i % 10);
+        var sphere = createSphere(Math.floor(Math.random() * 28) - 13,
+                                  Math.floor(Math.random() * 29) - 3,
+                                  i % 10);
 
         var m = 1;
         if(i % 2 == 0)
