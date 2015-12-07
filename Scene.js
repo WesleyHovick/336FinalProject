@@ -15,8 +15,13 @@ var spheres = [];
 
 var controlsEnabled = false;
 
+var material;
+var start;
+
 function init()
 {
+    start = Date.now();
+
     initScene();
     initMisc();
 
@@ -159,16 +164,53 @@ function initScene() {
         theLight.shadowBias = 0.01;
         theLight.shadowDarkness = 0.5;
 
+        //poisitioned at edges to look better right against walls
+        var secondLight = new THREE.PointLight( color, 0.5, 30 );
+        var thirdLight = new THREE.PointLight( color, 0.5, 30 );
+        var fourthLight = new THREE.PointLight( color, 0.5, 30 );
+        var fifthLight = new THREE.PointLight( color, 0.5, 30 );
+
         var geometry = new THREE.SphereGeometry( 0.3, 32, 32 );
-        var material = new THREE.MeshBasicMaterial( { color: color } );
-        var sphere1 = new THREE.Mesh( geometry, material );
-        theLight.add( sphere1 );
+        //var material = new THREE.MeshBasicMaterial( { color: color } );
+        //var sphere1 = new THREE.Mesh( geometry, material );
+        theLight.add( mesh );
+
+        material = new THREE.ShaderMaterial({
+            uniforms : {
+                tExplosion: {
+                    type: "t",
+                    value: THREE.ImageUtils.loadTexture( 'explosiontexture.png' )
+                },
+                time: {
+                    type: "f",
+                    value: 0.0
+                }
+            },
+
+            vertexShader : document.getElementById('vertexShader').textContent,
+            fragmentShader : document.getElementById('fragmentShader').textContent
+        });
+
+        var mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 6), material);
+
+        //var material = new THREE.MeshBasicMaterial( { color: color } );
+        //var sphere1 = new THREE.Mesh( geometry, material );
+        secondLight.position.y = -2;
+        thirdLight.position.x = 2;
+        fourthLight.position.x = -2;
+        fifthLight.position.y = 2;
+
+        //theLight.add(secondLight);
+        //theLight.add(thirdLight);
+        //theLight.add(fourthLight);
+        //theLight.add(fifthLight);
+        theLight.add( mesh );
 
         return theLight
     }
 
-    light = createLight( 0xffffff );
-    light.position.y = 2;
+    light = createLight( 0xffe1b3 );
+    //light.position.y = 2;
     scene.add( light );
 
     wallMaterial = new THREE.MeshPhongMaterial( {
@@ -183,7 +225,7 @@ function initScene() {
             color: 0xffff00
         }
     ) );
-    torusKnot.position.set( 0, 9, 0 );
+    torusKnot.position.set( -1, 9, 0 );
     torusKnot.castShadow = true;
     torusKnot.receiveShadow = true;
     scene.add( torusKnot );
@@ -276,32 +318,32 @@ function initMisc() {
 
 function render()
 {
+    material.uniforms[ 'time' ].value = .00015 * ( Date.now() - start );
     requestAnimationFrame(render);
     animate();
     renderer.render(scene, camera);
 }
-
 
 PointerControls = function (givenObject)
 {
     var onMouseMove = function (event)
     {
         var movementX = event.movementX || event.mozMovementX || 0;
-        var movementY = event.movementY || event.mozMovementY || 0;
+        var movementY = -event.movementY || -event.mozMovementY || 0;
 
         if(controlsEnabled)
         {
             var newY = givenObject.position.y + (movementY / 20);
             var newX = givenObject.position.x + (movementX / 20);
 
-            if(newX > leftWall.position.x + .45 && newX < rightWall.position.x - .45)
+            if(newX > leftWall.position.x + 2 && newX < rightWall.position.x - 2)
             {
                 givenObject.translateX(movementX / 20);
             }
 
-            if(newY < ceiling.position.y - .45 && newY > ground.position.y + .45)
+            if(newY < ceiling.position.y - 2 && newY > ground.position.y + 2)
             {
-                givenObject.translateY(-movementY / 20);
+                givenObject.translateY(movementY / 20);
             }
 
 
