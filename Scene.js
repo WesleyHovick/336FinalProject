@@ -5,20 +5,115 @@ var light1, light2;
 var ground, ceiling;
 var backWall, leftWall, rightWall, frontWall;
 
+var controls;
+
 var directionY = .3;
 var directionX = .3;
 var directionZ = .3;
 
 var spheres = [];
 
+var controlsEnabled = false;
+
 function init()
 {
     initScene();
     initMisc();
 
-    renderer.domElement.addEventListener('mousemove', onDocumentMouseMove, false);
+    controls = new PointerControls(light);
 
     document.body.appendChild(renderer.domElement);
+
+    //Credit: http://threejs.org/examples/misc_controls_pointerlock.html
+    var blocker = document.getElementById( 'blocker' );
+    var instructions = document.getElementById( 'instructions' );
+
+    var havePointerLock = 'pointerLockElement' in document
+                       || 'mozPointerLockElement' in document
+                       || 'webkitPointerLockElement' in document;
+
+    if ( havePointerLock ) {
+
+        var element = document.body;
+
+        var pointerlockchange = function ( event ) {
+
+            if ( document.pointerLockElement === element ||
+                 document.mozPointerLockElement === element ||
+                 document.webkitPointerLockElement === element ) {
+
+                controlsEnabled = true;
+                controls.enabled = true;
+
+                blocker.style.display = 'none';
+
+            } else {
+
+                controls.enabled = false;
+                controlsEnabled = false;
+
+                blocker.style.display = '-webkit-box';
+                blocker.style.display = '-moz-box';
+                blocker.style.display = 'box';
+
+                instructions.style.display = '';
+            }
+        };
+
+        var pointerlockerror = function ( event ) {
+
+            instructions.style.display = '';
+
+        };
+
+        document.addEventListener( 'pointerlockchange', pointerlockchange, false );
+        document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
+        document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
+
+        document.addEventListener( 'pointerlockerror', pointerlockerror, false );
+        document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
+        document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
+
+        instructions.addEventListener( 'click', function ( event ) {
+
+            instructions.style.display = 'none';
+
+            element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+
+            if ( /Firefox/i.test( navigator.userAgent ) ) {
+
+                var fullscreenchange = function ( event ) {
+
+                    if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
+
+                        document.removeEventListener( 'fullscreenchange', fullscreenchange );
+                        document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
+
+                        element.requestPointerLock();
+                    }
+
+                };
+
+                document.addEventListener( 'fullscreenchange', fullscreenchange, false );
+                document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
+
+                element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+
+                element.requestFullscreen();
+
+            } else {
+
+                element.requestPointerLock();
+
+            }
+
+        }, false );
+
+    } else {
+
+        instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
+    }
+    //End Credit
 
     render();
 }
@@ -50,6 +145,7 @@ function initScene() {
     camera.position.set( 0, 10, 45 );
 
     scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0xffffff, 0, 750);
     scene.add( new THREE.AmbientLight( 0x222233 ) );
 
     function createLight( color ) {
@@ -142,7 +238,7 @@ function initScene() {
         return sphere;
     }
 
-    for(var i = 0; i < 30; i++)
+    for(var i = 0; i < 15; i++)
     {
         var sphere = createSphere(Math.floor(Math.random() * 28) - 13,
                                   Math.floor(Math.random() * 29) - 3,
@@ -186,13 +282,42 @@ function render()
 }
 
 
+PointerControls = function (givenObject)
+{
+    var onMouseMove = function (event)
+    {
+        var movementX = event.movementX || event.mozMovementX || 0;
+        var movementY = event.movementY || event.mozMovementY || 0;
+
+        if(controlsEnabled)
+        {
+            var newY = givenObject.position.y + (movementY / 20);
+            var newX = givenObject.position.x + (movementX / 20);
+
+            if(newX > leftWall.position.x + .45 && newX < rightWall.position.x - .45)
+            {
+                givenObject.translateX(movementX / 20);
+            }
+
+            if(newY < ceiling.position.y - .45 && newY > ground.position.y + .45)
+            {
+                givenObject.translateY(-movementY / 20);
+            }
+
+
+
+        }
+    }
+
+    document.addEventListener('mousemove', onMouseMove, false);
+}
+
 function animate()
 {
     var time = performance.now() * 0.001;
     time += 10000;
 
-    torusKnot.rotation.y = time * 0.1;
-    torusKnot.rotation.z = time * 0.1;
+    torusKnot.rotation.x = time * 0.1;
 
     for(var j = 0; j < spheres.length; j++)
     {
