@@ -153,7 +153,6 @@ function initScene() {
     camera.position.set( 0, 10, 45 );
 
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xffffff, 0, 750);
     scene.add( new THREE.AmbientLight( 0x222233 ) );
 
     function createLight( color ) {
