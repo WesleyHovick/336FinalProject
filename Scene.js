@@ -288,15 +288,7 @@ function initScene() {
                                   Math.floor(Math.random() * 29) - 7,
                                   i % 10);
 
-        var m = 1;
-        if(i % 2 == 0)
-        {
-            m = -1;
-        }
-        else
-        {
-            m = 1;
-        }
+        var m = i % 2 == 0 ? -1 : 1;
 
         sphere.directionY = directionY * m;
         sphere.directionX = directionX * m;
