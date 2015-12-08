@@ -4,12 +4,13 @@ var wallMaterial;
 var light1, light2;
 var ground, ceiling;
 var backWall, leftWall, rightWall, frontWall;
+var torusKnot;
 
 var controls;
 
-var directionY = .3;
-var directionX = .3;
-var directionZ = .3;
+var directionY = .1;
+var directionX = .1;
+var directionZ = .1;
 
 var spheres = [];
 
@@ -30,6 +31,7 @@ function init()
     document.body.appendChild(renderer.domElement);
 
     //Credit: http://threejs.org/examples/misc_controls_pointerlock.html
+    //------------
     var blocker = document.getElementById( 'blocker' );
     var instructions = document.getElementById( 'instructions' );
 
@@ -118,6 +120,7 @@ function init()
 
         instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
     }
+    //----------------
     //End Credit
 
     render();
@@ -282,8 +285,8 @@ function initScene() {
 
     for(var i = 0; i < 15; i++)
     {
-        var sphere = createSphere(Math.floor(Math.random() * 28) - 13,
-                                  Math.floor(Math.random() * 29) - 3,
+        var sphere = createSphere(Math.floor(Math.random() * 28) - 17,
+                                  Math.floor(Math.random() * 29) - 7,
                                   i % 10);
 
         var m = 1;
@@ -331,23 +334,22 @@ PointerControls = function (givenObject)
         var movementX = event.movementX || event.mozMovementX || 0;
         var movementY = -event.movementY || -event.mozMovementY || 0;
 
+        var value_dampener = 20;
+
         if(controlsEnabled)
         {
-            var newY = givenObject.position.y + (movementY / 20);
-            var newX = givenObject.position.x + (movementX / 20);
+            var newY = givenObject.position.y + (movementY / value_dampener);
+            var newX = givenObject.position.x + (movementX / value_dampener);
 
             if(newX > leftWall.position.x + 2 && newX < rightWall.position.x - 2)
             {
-                givenObject.translateX(movementX / 20);
+                givenObject.translateX(movementX / value_dampener);
             }
 
             if(newY < ceiling.position.y - 2 && newY > ground.position.y + 2)
             {
-                givenObject.translateY(movementY / 20);
+                givenObject.translateY(movementY / value_dampener);
             }
-
-
-
         }
     }
 

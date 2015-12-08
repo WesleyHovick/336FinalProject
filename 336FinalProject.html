@@ -6,18 +6,15 @@
     <style>
 
         #blocker {
-
             position: absolute;
 
             width: 100%;
             height: 100%;
 
             background-color: rgba(0,0,0,0.5);
-
         }
 
         #instructions {
-
             width: 100%;
             height: 100%;
 
@@ -41,9 +38,7 @@
             text-align: center;
 
             cursor: pointer;
-
         }
-
     </style>
 </head>
 <body>
@@ -80,7 +75,6 @@ vec4 taylorInvSqrt(vec4 r)
 vec3 fade(vec3 t) {
   return t*t*t*(t*(t*6.0-15.0)+10.0);
 }
-
 
 float pnoise(vec3 P, vec3 rep)
 {
@@ -163,7 +157,6 @@ float turbulence( vec3 p ) {
 }
 
 void main() {
-
     vUv = uv;
 
     // add time to the noise parameters so it's animated
@@ -173,12 +166,8 @@ void main() {
 
     vec3 newPosition = position + normal * displacement;
     gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-
 }
-
-
-
-    </script>
+</script>
 
 <script type="x-shader/x-vertex" id="fragmentShader">
 varying vec2 vUv;
@@ -190,7 +179,6 @@ float random( vec3 scale, float seed ){
 }
 
 void main() {
-
     // get a random offset
     float r = 0.01 * random( vec3( 12.9898, 78.233, 151.7182 ), 0.0 );
     // lookup vertically in the texture, using noise and offset
@@ -199,10 +187,8 @@ void main() {
     vec4 color = texture2D( tExplosion, tPos );
 
     gl_FragColor = vec4( color.rgb, 1.0 );
-
 }
-    </script>
-
+</script>
 
 <script type="text/javascript" id="mainCode"></script>
 
